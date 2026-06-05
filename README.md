@@ -26,11 +26,25 @@ TV.
 
 ## Pages
 
-- `/` — the display (the canvas). A faint gear in the bottom-right opens the
-  controls.
+- `/` — the display (the canvas). Two faint buttons in the bottom-right: a
+  **full-screen** toggle, and a **gear** that opens the controls.
 - `/control` — the control panel: location, calibration, themes, labels,
   filters, sky options, palette, etc. Open it on the same screen or on a phone
   pointed at the same URL.
+
+## Install it as an app
+
+Skylight is a PWA, so you can install it and run it in its own window (no
+browser tabs/address bar) — on desktop or as a home-screen app on a phone.
+
+- **Desktop (Chrome/Edge):** open the site, then use the install icon in the
+  address bar (or ⋮ menu → *Install Skylight*).
+- **iOS Safari:** Share → *Add to Home Screen*.
+- **Android Chrome:** ⋮ menu → *Install app* / *Add to Home Screen*.
+
+The app needs the network for live flight data, so it isn't a true offline app —
+but the shell is cached, so it launches instantly. There's also a **full-screen**
+button on the display for kiosk/projector use.
 
 ## Deploy to Vercel
 
@@ -69,6 +83,11 @@ npm run build      # production build into dist/
 npm run preview    # serve the built output
 npm run typecheck  # type-check only
 ```
+
+To install the app from your own machine (rather than the deployed site), run
+`npm run build && npm run preview` and install from the preview URL — the service
+worker that makes it installable is only active in production builds, not in
+`npm run dev`.
 
 ## Setting your location
 

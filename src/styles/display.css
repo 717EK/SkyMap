@@ -57,16 +57,21 @@ body,
   font: 12px "JetBrains Mono", ui-monospace, monospace;
   color: #6b7280;
 }
-.settings-link {
+.display-controls {
   position: fixed;
   bottom: 14px;
   right: 16px;
   z-index: 20;
   display: flex;
+  gap: 10px;
+}
+.display-btn {
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
+  padding: 0;
   border-radius: 50%;
   color: #c9cdd6;
   background: rgba(10, 12, 16, 0.55);
@@ -74,16 +79,16 @@ body,
   -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   opacity: 0.25;
-  transition: opacity 160ms ease, transform 160ms ease;
+  cursor: pointer;
+  transition: opacity 160ms ease;
 }
-.settings-link:hover,
-.settings-link:focus-visible {
+.display-btn:hover,
+.display-btn:focus-visible {
   opacity: 1;
-  transform: rotate(30deg);
   outline: none;
 }
 @media (hover: none) {
-  .settings-link {
+  .display-btn {
     opacity: 0.6;
   }
 }
