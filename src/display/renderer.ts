@@ -406,65 +406,135 @@ export class Renderer {
     }
   }
 
-  // --- airport: runways at true geographic position ---
+  // --- airport: runways at true geographic position (map-like) ---
   private drawAirport(cfg: Config, proj: ProjOpts): void {
     const ctx = this.ctx;
-    const rwyRgb: [number, number, number] = [150, 180, 220];
+    const W = this.w;
+    const H = this.h;
+    const b = cfg.brightness;
+    const margin = 140;
+    const onScreen = (p: Point) =>
+      p.x >= -margin && p.x <= W + margin && p.y >= -margin && p.y <= H + margin;
+
+    // Cheap geographic pre-cull so we don't project all ~200 airports each frame:
+    // skip any whose first runway is well outside the visible window.
+    const degLat = (cfg.radiusMiles / 69) * 2.4 + 0.02;
+    const cosLat = Math.max(0.2, Math.cos((cfg.centerLat * Math.PI) / 180));
+    const degLon = degLat / cosLat;
+
     for (const ap of AIRPORTS) {
+      const r0 = ap.runways[0];
+      if (
+        Math.abs(r0.le[0] - cfg.centerLat) > degLat &&
+        Math.abs(r0.le[1] - cfg.centerLon) > degLon
+      ) {
+        continue;
+      }
+
+      const segs: { a: Point; b: Point; wpx: number; len: number; le: string; he: string }[] = [];
       let cx = 0;
       let cy = 0;
-      let n = 0;
+      let anyVisible = false;
       for (const r of ap.runways) {
         const a = this.toScreen(r.le, cfg, proj);
-        const b = this.toScreen(r.he, cfg, proj);
-        // True runway width in px, nudged up a touch so it stays legible.
+        const bb = this.toScreen(r.he, cfg, proj);
+        if (onScreen(a) || onScreen(bb)) anyVisible = true;
         const wpx = Math.max(2.5, r.widthFt * 0.3048 * proj.pxPerM * 1.4);
+        const len = Math.hypot(bb.x - a.x, bb.y - a.y);
+        segs.push({ a, b: bb, wpx, len, le: r.leIdent, he: r.heIdent });
+        cx += (a.x + bb.x) / 2;
+        cy += (a.y + bb.y) / 2;
+      }
+      if (!anyVisible || !segs.length) continue;
+      cx /= segs.length;
+      cy /= segs.length;
 
+      for (const s of segs) {
+        const ang = Math.atan2(s.b.y - s.a.y, s.b.x - s.a.x);
         ctx.save();
         ctx.lineCap = "butt";
+        // Dark casing under the asphalt (gives the strip a crisp map-like edge).
+        ctx.strokeStyle = rgba([12, 16, 22], 0.6 * b);
+        ctx.lineWidth = s.wpx + 2.5;
+        ctx.beginPath();
+        ctx.moveTo(s.a.x, s.a.y);
+        ctx.lineTo(s.b.x, s.b.y);
+        ctx.stroke();
         // Asphalt body.
-        ctx.strokeStyle = rgba(rwyRgb, 0.16 * cfg.brightness);
-        ctx.lineWidth = wpx;
+        ctx.strokeStyle = rgba([116, 126, 140], 0.62 * b);
+        ctx.lineWidth = s.wpx;
         ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
+        ctx.moveTo(s.a.x, s.a.y);
+        ctx.lineTo(s.b.x, s.b.y);
         ctx.stroke();
-        // Dashed centerline.
-        ctx.strokeStyle = rgba([210, 226, 255], 0.22 * cfg.brightness);
-        ctx.lineWidth = 1;
-        ctx.setLineDash([6, 6]);
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
-        ctx.stroke();
+        // Dashed centerline (only when the strip is wide enough to read).
+        if (s.wpx >= 4) {
+          ctx.strokeStyle = rgba([236, 240, 250], 0.5 * b);
+          ctx.lineWidth = Math.max(1, s.wpx * 0.08);
+          ctx.setLineDash([10, 10]);
+          ctx.beginPath();
+          ctx.moveTo(s.a.x, s.a.y);
+          ctx.lineTo(s.b.x, s.b.y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
         ctx.restore();
 
-        cx += (a.x + b.x) / 2;
-        cy += (a.y + b.y) / 2;
-        n++;
-      }
-      // Airport label at the runway centroid.
-      if (n) {
-        cx /= n;
-        cy /= n;
-        ctx.save();
-        ctx.font = `300 13px ${cfg.fonts.label}`;
-        ctx.fillStyle = rgba(rwyRgb, 0.5 * cfg.brightness);
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        try {
-          ctx.letterSpacing = "4px";
-        } catch {
-          /* noop */
+        // Runway identifier numbers at each threshold, read along the runway —
+        // only when zoomed in enough that they'd be legible.
+        if (s.len > 70 && s.wpx >= 5) {
+          const fs = Math.max(9, Math.min(16, s.wpx * 0.9));
+          const inset = Math.min(s.len * 0.16, fs * 2.2);
+          ctx.save();
+          ctx.fillStyle = rgba([236, 240, 250], 0.78 * b);
+          ctx.font = `600 ${fs}px ${cfg.fonts.label}`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          if (s.le) {
+            const lx = s.a.x + Math.cos(ang) * inset;
+            const ly = s.a.y + Math.sin(ang) * inset;
+            ctx.save();
+            ctx.translate(lx, ly);
+            ctx.rotate(ang + Math.PI / 2);
+            ctx.fillText(s.le, 0, 0);
+            ctx.restore();
+          }
+          if (s.he) {
+            const hx = s.b.x - Math.cos(ang) * inset;
+            const hy = s.b.y - Math.sin(ang) * inset;
+            ctx.save();
+            ctx.translate(hx, hy);
+            ctx.rotate(ang - Math.PI / 2);
+            ctx.fillText(s.he, 0, 0);
+            ctx.restore();
+          }
+          ctx.restore();
         }
-        ctx.fillText(ap.name, cx, cy);
-        try {
-          ctx.letterSpacing = "0px";
-        } catch {
-          /* noop */
-        }
-        ctx.restore();
       }
+
+      // Airport label (code, with full name beneath for larger fields).
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `500 13px ${cfg.fonts.label}`;
+      ctx.fillStyle = rgba([198, 214, 236], 0.72 * b);
+      try {
+        ctx.letterSpacing = "3px";
+      } catch {
+        /* noop */
+      }
+      ctx.fillText(ap.code, cx, cy);
+      try {
+        ctx.letterSpacing = "0px";
+      } catch {
+        /* noop */
+      }
+      if (ap.type !== "small_airport") {
+        ctx.font = `300 10px ${cfg.fonts.label}`;
+        ctx.fillStyle = rgba([150, 166, 188], 0.5 * b);
+        ctx.fillText(ap.name, cx, cy + 15);
+      }
+      ctx.restore();
     }
   }
 

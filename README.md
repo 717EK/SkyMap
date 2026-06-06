@@ -20,27 +20,37 @@ TV.
   updates so motion stays smooth.
 - **Settings live in your browser**, not on a server (see "Per-device settings"
   below).
-- **You can set the location** from the control panel, including a "Use my
-  location" button. The original was wired to a fixed spot near SFO; that's
-  still the default.
+- **In-app settings overlay.** The gear on the display opens a translucent
+  settings panel over the live view (the app stays visible behind it) — no need
+  to leave the page.
+- **You can set the location** — type lat/lon or tap "Use my location". The
+  default is **near Delhi (Indira Gandhi International, DEL)**.
+- **All Indian airports** are bundled and drawn to scale at their true position
+  (the original shipped only SFO).
 
 ## Pages
 
-- `/` — the display (the canvas). Two faint buttons in the bottom-right: a
-  **full-screen** toggle, and a **gear** that opens the controls.
-- `/control` — the control panel: location, calibration, themes, labels,
-  filters, sky options, palette, etc. Open it on the same screen or on a phone
-  pointed at the same URL.
+- `/` — the display (the canvas). Buttons in the bottom-right:
+  **install** (appears when your browser can install the app), **use my
+  location**, **full-screen**, and **settings** (the gear, which opens the
+  in-app overlay).
+- `/control` — the same control panel as a standalone page. Handy for opening on
+  a phone pointed at the same URL, or as the app's "Controls" shortcut. (The
+  in-app overlay and this page edit the same settings.)
 
 ## Install it as an app
 
 Skylight is a PWA, so you can install it and run it in its own window (no
 browser tabs/address bar) — on desktop or as a home-screen app on a phone.
 
-- **Desktop (Chrome/Edge):** open the site, then use the install icon in the
-  address bar (or ⋮ menu → *Install Skylight*).
-- **iOS Safari:** Share → *Add to Home Screen*.
-- **Android Chrome:** ⋮ menu → *Install app* / *Add to Home Screen*.
+- **In-app:** when your browser supports it (desktop Chrome/Edge, Android
+  Chrome), an **install button** appears in the bottom-right of the display —
+  tap it.
+- **Desktop (Chrome/Edge):** or use the install icon in the address bar (⋮ menu
+  → *Install Skylight*).
+- **iOS Safari:** Share → *Add to Home Screen* (iOS doesn't surface an in-app
+  install button).
+- **Android Chrome:** the in-app button, or ⋮ menu → *Install app*.
 
 The app needs the network for live flight data, so it isn't a true offline app —
 but the shell is cached, so it launches instantly. There's also a **full-screen**
@@ -91,9 +101,10 @@ worker that makes it installable is only active in production builds, not in
 
 ## Setting your location
 
-Open **/control → Location**. Type a latitude/longitude, or tap **Use my
-location** (the browser will ask permission). The sky (sun/moon/stars/ISS) and
-the overhead query both follow this point. Defaults to near SFO.
+Tap the **use-my-location** button on the display (bottom-right), or open the
+**settings → Location** section and type a latitude/longitude. The sky
+(sun/moon/stars/ISS) and the overhead query both follow this point. The default
+is **near Delhi: 28.528082, 77.152159**.
 
 ## Notes & limits
 
@@ -107,10 +118,16 @@ the overhead query both follow this point. Defaults to near SFO.
   `/control` controls only that phone's view, not a separate display machine.
   Cross-device remote control would need a small shared backend (e.g. Vercel KV);
   it's intentionally left out of this build.
-- **Airport overlay.** The runway overlay is the SFO layout from the original
-  project. If you move the location far away it just sits off-screen; you can
-  also turn it off under **Overlays → Airport runways**. Swapping in a different
-  airport means editing `src/display/airports.ts`.
+- **Airports.** All Indian airports (≈215, from the public-domain
+  [OurAirports](https://github.com/davidmegginson/ourairports-data) dataset) are
+  bundled and drawn to scale at their true geographic position. When you're
+  zoomed in on one, it renders map-style — asphalt strips, dashed centerlines,
+  and runway identifier numbers (e.g. Delhi's 09/27, 10/28, 11L/29R, 11R/29L)
+  with the airport code and name; zoomed out, runways are thin lines (just like
+  Google Maps). Use the **Radius** control to zoom. Toggle the layer under
+  **Overlays → Airport runways**. To cover other countries, add entries to
+  `src/display/airports.ts` in the same shape (regenerate from OurAirports if you
+  like).
 - **Enrichment.** Airline names, aircraft types, and routes/registrations are
   filled in from bundled lookup tables plus the public
   [adsbdb](https://www.adsbdb.com/) API (via `/api/route`), cached in your

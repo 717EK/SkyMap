@@ -73,22 +73,37 @@ body,
   height: 40px;
   padding: 0;
   border-radius: 50%;
-  color: #c9cdd6;
-  background: rgba(10, 12, 16, 0.55);
+  color: #d4d8e0;
+  background: rgba(10, 12, 16, 0.6);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  opacity: 0.25;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0.6;
   cursor: pointer;
-  transition: opacity 160ms ease;
+  transition: opacity 160ms ease, background 160ms ease;
 }
 .display-btn:hover,
 .display-btn:focus-visible {
   opacity: 1;
+  background: rgba(20, 24, 32, 0.85);
   outline: none;
 }
 @media (hover: none) {
   .display-btn {
-    opacity: 0.6;
+    opacity: 0.85;
   }
+}
+.geo-toast {
+  position: fixed;
+  bottom: 64px;
+  right: 16px;
+  z-index: 21;
+  font: 12px "JetBrains Mono", ui-monospace, monospace;
+  color: #d4d8e0;
+  background: rgba(10, 12, 16, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 10px;
+  border-radius: 8px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }

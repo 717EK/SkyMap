@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Config, ShowFields } from "@shared/index.js";
 import { useStream } from "../lib/useStream.js";
+import type { Connection, StreamState } from "../lib/connection.js";
 import { nextISSPass, type Tle } from "../display/celestial.js";
 import { ColorRow, Coord, Row, Section, Segmented, Slider, Toggle } from "./components.js";
 
@@ -30,8 +31,15 @@ const FIELD_LABELS: Record<keyof ShowFields, string> = {
   registration: "Registration",
 };
 
-export function Control() {
-  const { state, conn } = useStream("control");
+export function ControlPanel({
+  state,
+  conn,
+  onClose,
+}: {
+  state: StreamState;
+  conn: Connection;
+  onClose?: () => void;
+}) {
   const cfg = state.config;
 
   // ISS pass finder (for the Sky section).
@@ -91,8 +99,28 @@ export function Control() {
           <span className={`dot ${state.connected ? "ok" : "bad"}`} />
           Skylight
         </div>
-        <div className="stat">
-          {state.status?.source ?? "—"} · {state.aircraft.length} overhead
+        <div className="topbar-right">
+          <div className="stat">
+            {state.status?.source ?? "—"} · {state.aircraft.length} overhead
+          </div>
+          {onClose && (
+            <button className="overlay-close" onClick={onClose} title="Close" aria-label="Close settings">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            </button>
+          )}
         </div>
       </header>
 
@@ -314,4 +342,11 @@ export function Control() {
       </main>
     </div>
   );
+}
+
+// Standalone control page (kept for direct access and the phone-as-remote use
+// case). The in-app settings overlay on the display reuses <ControlPanel/>.
+export function Control() {
+  const { state, conn } = useStream("control");
+  return <ControlPanel state={state} conn={conn} />;
 }

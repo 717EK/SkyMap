@@ -111,11 +111,11 @@ export interface Config {
 }
 
 export const DEFAULT_CONFIG: Config = {
-  // Default center: San Francisco International (SFO). Set this to your own
-  // location — ideally where you'll be looking up at the ceiling.
-  centerLat: 37.6213,
-  centerLon: -122.379,
-  radiusMiles: 3,
+  // Default center: near Indira Gandhi International (DEL), Delhi. Set this to
+  // your own location — ideally where you'll be looking up at the ceiling.
+  centerLat: 28.528082,
+  centerLon: 77.152159,
+  radiusMiles: 6,
 
   rotationDeg: 0,
   mirrorX: true,

@@ -284,3 +284,68 @@ main {
   font-weight: 500;
   cursor: pointer;
 }
+
+/* ---- In-app settings overlay (hosted on the display) ---- */
+/* Full-window translucent sheet so the live canvas shows through behind it. */
+.control-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: rgba(8, 10, 14, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: overlay-in 150ms ease-out;
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.control-overlay .control {
+  background: transparent;
+}
+.control-overlay .topbar {
+  background: rgba(10, 12, 16, 0.6);
+}
+/* Slightly translucent cards so the app glows through the panel too. */
+.control-overlay .section-body {
+  background: rgba(20, 24, 31, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.control-overlay .palette {
+  background: rgba(35, 42, 53, 0.6);
+}
+.control-overlay .color-row {
+  background: rgba(20, 24, 31, 0.72);
+}
+
+/* Topbar right cluster + overlay close button */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.overlay-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
+}
+.overlay-close:hover {
+  background: #243043;
+}
