@@ -106,6 +106,10 @@ Tap the **use-my-location** button on the display (bottom-right), or open the
 (sun/moon/stars/ISS) and the overhead query both follow this point. The default
 is **near Delhi: 28.528082, 77.152159**.
 
+Your set location is marked at the center of the view with a **breathing green
+dot** (a radar-style pulse). Toggle it under **settings → Overlays → My
+location**.
+
 ## Notes & limits
 
 - **Rate limit.** airplanes.live allows ~1 request/second and is for

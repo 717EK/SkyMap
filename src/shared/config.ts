@@ -90,6 +90,8 @@ export interface Config {
   highlightEmergency: boolean;
   /** Draw the airport (runways) at its true geographic position. */
   showAirport: boolean;
+  /** Mark your set location at the center with a breathing green dot. */
+  showLocation: boolean;
   /** Show the on-screen calibration HUD on the display. */
   showHud: boolean;
 
@@ -168,6 +170,7 @@ export const DEFAULT_CONFIG: Config = {
   compass: true,
   highlightEmergency: true,
   showAirport: true,
+  showLocation: true,
   showHud: false,
 
   showStars: true,

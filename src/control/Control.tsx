@@ -263,6 +263,9 @@ export function ControlPanel({
           <Row label="Airport runways">
             <Toggle value={cfg.showAirport} onChange={(v) => set({ showAirport: v })} />
           </Row>
+          <Row label="My location" hint="Breathing green dot at your set location">
+            <Toggle value={cfg.showLocation} onChange={(v) => set({ showLocation: v })} />
+          </Row>
           <Row label="Highlight emergency">
             <Toggle value={cfg.highlightEmergency} onChange={(v) => set({ highlightEmergency: v })} />
           </Row>

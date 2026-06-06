@@ -261,6 +261,7 @@ export class Renderer {
     this.drawSky(cfg, proj);
     this.drawOverlays(cfg, proj);
     if (cfg.showAirport) this.drawAirport(cfg, proj);
+    if (cfg.showLocation) this.drawLocation(cfg);
 
     const tt = now - RENDER_DELAY_MS;
     const visible: Visible[] = [];
@@ -404,6 +405,54 @@ export class Renderer {
       }
       ctx.restore();
     }
+  }
+
+  // --- "you are here": breathing green marker at the set location (center) ---
+  private drawLocation(cfg: Config): void {
+    const ctx = this.ctx;
+    const cx = this.w / 2;
+    const cy = this.h / 2;
+    const t = this.frameT;
+    const green: [number, number, number] = [54, 217, 138];
+    const b = cfg.brightness;
+    const breathe = 0.5 + 0.5 * Math.sin(t * 2.2);
+
+    // Expanding ping ring (radar pulse) — reads as both a blink and a breathe.
+    const period = 2.6;
+    const p = (t % period) / period;
+    const ringR = 4 + (26 - 4) * p;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+    ctx.strokeStyle = rgba(green, (1 - p) * 0.5 * b);
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+
+    // Soft glow halo, gently breathing.
+    const glowR = 9 + breathe * 4;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+    grad.addColorStop(0, rgba(green, 0.45 * b));
+    grad.addColorStop(1, rgba(green, 0));
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.restore();
+
+    // Core dot with a thin dark casing so it stays legible over a bright sky.
+    const dotR = 4 + breathe * 0.8;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, dotR + 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = rgba([8, 12, 16], 0.7 * b);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
+    ctx.fillStyle = rgba(green, Math.min(1, 0.95 * b + 0.05));
+    ctx.fill();
+    ctx.restore();
   }
 
   // --- airport: runways at true geographic position (map-like) ---
