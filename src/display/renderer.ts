@@ -160,7 +160,7 @@ export class Renderer {
   }
 
   resize(): void {
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.dpr = Math.min(window.devicePixelRatio || 1, 3);
     this.w = this.canvas.clientWidth;
     this.h = this.canvas.clientHeight;
     this.canvas.width = Math.round(this.w * this.dpr);

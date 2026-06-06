@@ -132,6 +132,13 @@ location**.
   **Overlays → Airport runways**. To cover other countries, add entries to
   `src/display/airports.ts` in the same shape (regenerate from OurAirports if you
   like).
+- **Mobile / iPhone.** The display fills the screen at native resolution
+  (Retina/3×) and any aspect ratio — the radar fits the screen width and stays
+  centred on your location. It respects iOS safe areas (notch / Dynamic Island /
+  home indicator), uses the dynamic viewport so the floating controls aren't
+  hidden behind Safari's toolbar, and locks out rubber-band scrolling. Add it to
+  your home screen (Share → *Add to Home Screen*) for a full-screen, chrome-free
+  app.
 - **Enrichment.** Airline names, aircraft types, and routes/registrations are
   filled in from bundled lookup tables plus the public
   [adsbdb](https://www.adsbdb.com/) API (via `/api/route`), cached in your
